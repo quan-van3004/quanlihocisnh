@@ -42,6 +42,22 @@ namespace Name.Models
             Console.WriteLine($"Tên: {Name}, Tuổi: {Age}, Địa chỉ: {Address}");
         }
     }
+    [Serializable]
+    public class Notification
+    {
+        public string Sender { get; set; }
+        public string Recipient { get; set; }
+        public string Content { get; set; }
+        public DateTime Date { get; set; }
+
+        public Notification(string sender, string recipient, string content)
+        {
+            Sender = sender;
+            Recipient = recipient;
+            Content = content;
+            Date = DateTime.Now;
+        }
+    }
 
     [Serializable]
     public class Teacher : Person
@@ -332,8 +348,10 @@ namespace Name.Models
             Console.WriteLine("3. Sửa thông tin của học sinh");
             Console.WriteLine("4. Tìm kiếm và xem điểm của học sinh");
             Console.WriteLine("5. Danh sách học sinh");
-            Console.WriteLine("6. Thoát");
+            Console.WriteLine("6. Gửi thông báo");
+            Console.WriteLine("7. Thoát");
         }
+
 
         public static void ShowTeacherMenu()
         {
@@ -341,17 +359,19 @@ namespace Name.Models
             Console.WriteLine("1. Thêm hoặc sửa điểm môn học");
             Console.WriteLine("2. Tổng kết môn học");
             Console.WriteLine("3. Gửi báo cáo tình hình học tập cho học sinh");
-            Console.WriteLine("4. Thoát");
+            Console.WriteLine("4. Xem thông báo");
+            Console.WriteLine("5. Thoát");
         }
-
 
         public static void ShowStudentMenu()
         {
             Console.WriteLine("=== Hệ thống quản lý học sinh - Học sinh ===");
             Console.WriteLine("1. Xem điểm");
             Console.WriteLine("2. Xem báo cáo từ giáo viên");
-            Console.WriteLine("3. Thoát");
+            Console.WriteLine("3. Xem thông báo");
+            Console.WriteLine("4. Thoát");
         }
+
 
     }
 
@@ -388,6 +408,9 @@ namespace Name.Models
 
                             break;
                         case "3":
+                            ViewNotifications(loginInfo.Username);
+                            break;
+                        case "4":
                             return;
                         default:
                             Console.WriteLine("Tùy chọn không hợp lệ, vui lòng thử lại.");
@@ -422,8 +445,10 @@ namespace Name.Models
                             SendReport(loginInfo.Username, loginInfo.Subject);
 
                             break;
-
                         case "4":
+                            ViewNotifications(loginInfo.Username);
+                            break;
+                        case "5":
                             return;
                         default:
                             Console.WriteLine("Tùy chọn không hợp lệ, vui lòng thử lại.");
@@ -457,6 +482,9 @@ namespace Name.Models
                             Summary.SummarizeByClass();
                             break;
                         case "6":
+                            SendNotification();
+                            break;
+                        case "7":
                             return;
                         default:
                             Console.WriteLine("Tùy chọn không hợp lệ, vui lòng thử lại.");
@@ -514,6 +542,66 @@ namespace Name.Models
             }
         }
 
+        public class NotificationHandler
+        {
+            private const string NotificationFilePath = "notifications.json";
+
+            public static void SendNotification(string sender, string recipient, string content)
+            {
+                Notification notification = new Notification(sender, recipient, content);
+                List<Notification> notifications = LoadNotifications();
+                notifications.Add(notification);
+                SaveNotifications(notifications);
+                Console.WriteLine("Thông báo đã được gửi thành công.");
+            }
+
+            public static List<Notification> LoadNotifications()
+            {
+                if (!File.Exists(NotificationFilePath)) return new List<Notification>();
+
+                string jsonString = File.ReadAllText(NotificationFilePath);
+                return JsonSerializer.Deserialize<List<Notification>>(jsonString) ?? new List<Notification>();
+            }
+
+            public static void SaveNotifications(List<Notification> notifications)
+            {
+                JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
+                string jsonString = JsonSerializer.Serialize(notifications, options);
+                File.WriteAllText(NotificationFilePath, jsonString);
+            }
+
+            public static List<Notification> GetNotificationsForUser(string username)
+            {
+                List<Notification> notifications = LoadNotifications();
+                return notifications.Where(n => n.Recipient.Equals(username, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+        }
+
+        public static void SendNotification()
+        {
+            Console.WriteLine("Nhập tên người nhận (học sinh hoặc giáo viên):");
+            string recipient = Console.ReadLine();
+            Console.WriteLine("Nhập nội dung thông báo:");
+            string content = Console.ReadLine();
+            string sender = "Admin"; // Hoặc lấy từ thông tin đăng nhập nếu cần
+
+            NotificationHandler.SendNotification(sender, recipient, content);
+        }
+        public static void ViewNotifications(string username)
+        {
+            List<Notification> notifications = NotificationHandler.GetNotificationsForUser(username);
+            if (notifications.Count == 0)
+            {
+                Console.WriteLine("Không có thông báo nào.");
+            }
+            else
+            {
+                foreach (var notification in notifications)
+                {
+                    Console.WriteLine($"Từ: {notification.Sender}, Ngày: {notification.Date}, Nội dung: {notification.Content}");
+                }
+            }
+        }
 
 
         public static void SaveReport(Report report)
