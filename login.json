@@ -1,0 +1,39 @@
+[
+  {
+    "Username": "luong thanh",
+    "Password": "123456",
+    "Role": "teacher",
+    "Subject": "toan"
+  },
+  {
+    "Username": "chi thanh",
+    "Password": "123456",
+    "Role": "teacher",
+    "Subject": "hoa"
+  },
+  {
+    "Username": "quan",
+    "Password": "123456",
+    "Role": "student"
+  },
+  {
+    "Username": "lan thanh",
+    "Password": "123456",
+    "Role": "student"
+  },
+  {
+    "Username": "nguyen",
+    "Password": "123456",
+    "Role": "student"
+  },
+  {
+    "Username": "huy",
+    "Password": "123456",
+    "Role": "student"
+  },
+  {
+    "Username": "admin",
+    "Password": "123456",
+    "Role": "admin"
+  }
+]

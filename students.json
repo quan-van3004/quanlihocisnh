@@ -1,0 +1,73 @@
+[
+  {
+    "StudentId": "31231027035",
+    "Class": "12/3",
+    "Scores": [
+      {
+        "Subject": "toan",
+        "MidtermScore": 8,
+        "FinalScore": 9
+      }
+    ],
+    "Name": "lan thanh",
+    "Age": 18,
+    "Address": "sai gon"
+  },
+  {
+    "StudentId": "31231027033",
+    "Class": "12/2",
+    "Scores": [
+      {
+        "Subject": "toan",
+        "MidtermScore": 5,
+        "FinalScore": 5
+      },
+      {
+        "Subject": "hoa",
+        "MidtermScore": 10,
+        "FinalScore": 10
+      },
+      {
+        "Subject": "tieng anh",
+        "MidtermScore": 10,
+        "FinalScore": 10
+      },
+      {
+        "Subject": "C#",
+        "MidtermScore": 9,
+        "FinalScore": 10
+      }
+    ],
+    "Name": "Nguy?n van qu\u00E2n",
+    "Age": 20,
+    "Address": "thanh hoa"
+  },
+  {
+    "StudentId": "31231027034",
+    "Class": "12/1",
+    "Scores": [
+      {
+        "Subject": "toan",
+        "MidtermScore": 8,
+        "FinalScore": 9
+      }
+    ],
+    "Name": "trong nguyen",
+    "Age": 18,
+    "Address": "quang nam"
+  },
+  {
+    "StudentId": "31231027036",
+    "Class": "12/4",
+    "Scores": [
+      {
+        "Subject": "toan",
+        "MidtermScore": 8,
+        "FinalScore": 10
+      }
+    ],
+    "Name": "huy vux",
+    "Age": 18,
+    "Address": "quang nam"
+  }
+]
