@@ -153,7 +153,43 @@ namespace Name.Models
         }
     }
 
+    public class Summary
+    {
+        private static List<Student> students;
 
+        public static void SummarizeBySubject(string subject)
+        {
+            Console.WriteLine($"Tổng kết điểm cho môn {subject}:");
+            foreach (var student in students)
+            {
+                Score score = student.Scores.Find(s => s.Subject.Equals(subject, StringComparison.OrdinalIgnoreCase));
+                if (score != null)
+                {
+                    Console.WriteLine($"{student.Name}: {score.CalculateFinalScore():F2}");
+                }
+            }
+        }
+
+        public static void SummarizeByClass()
+        {
+            Console.WriteLine("Danh sách học sinh:");
+            foreach (var student in students)
+            {
+                student.DisplayInfo();
+                Console.WriteLine("Điểm:");
+                foreach (var score in student.Scores)
+                {
+                    score.DisplayScore();
+                }
+                Console.WriteLine();
+            }
+        }
+
+        public static void SetStudents(List<Student> students)
+        {
+            Summary.students = students;
+        }
+    }
     [Serializable]
     public class Student : Person
     {
@@ -331,6 +367,7 @@ namespace Name.Models
             List<LoginInfo> loginInfos = FileHandler.LoadLoginData(loginFilePath);
             LoginInfo loginInfo = Login(loginInfos);
             students = FileHandler.LoadDataFromFile(studentFilePath);
+            Summary.SetStudents(students);
 
             if (loginInfo == null) return;
 
@@ -379,7 +416,7 @@ namespace Name.Models
                             AddOrUpdateScore(loginInfo.Subject);
                             break;
                         case "2":
-                            SummarizeBySubject(loginInfo.Subject);
+                            Summary.SummarizeBySubject(loginInfo.Subject);
                             break;
                         case "3":
                             SendReport(loginInfo.Username, loginInfo.Subject);
@@ -417,7 +454,7 @@ namespace Name.Models
                             SearchStudentAndDisplayScores();
                             break;
                         case "5":
-                            SummarizeByClass();
+                            Summary.SummarizeByClass();
                             break;
                         case "6":
                             return;
@@ -595,35 +632,6 @@ namespace Name.Models
                 Console.WriteLine("Không tìm thấy học sinh.");
             }
         }
-
-        public static void SummarizeBySubject(string subject)
-        {
-            Console.WriteLine($"Tổng kết điểm cho môn {subject}:");
-            foreach (var student in students)
-            {
-                Score score = student.Scores.Find(s => s.Subject.Equals(subject, StringComparison.OrdinalIgnoreCase));
-                if (score != null)
-                {
-                    Console.WriteLine($"{student.Name}: {score.CalculateFinalScore():F2}");
-                }
-            }
-        }
-
-        public static void SummarizeByClass()
-        {
-            Console.WriteLine("Danh sách học sinh:");
-            foreach (var student in students)
-            {
-                student.DisplayInfo();
-                Console.WriteLine("Điểm:");
-                foreach (var score in student.Scores)
-                {
-                    score.DisplayScore();
-                }
-                Console.WriteLine();
-            }
-        }
-
         public static void UpdateStudentInfo()
         {
             Console.WriteLine("Nhập mã học sinh:");
