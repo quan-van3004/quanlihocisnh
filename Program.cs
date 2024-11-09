@@ -49,6 +49,9 @@ namespace Name.Models
         public string Recipient { get; set; }
         public string Content { get; set; }
         public DateTime Date { get; set; }
+        public delegate void NotificationSentHandler(Notification notification);
+        public event NotificationSentHandler OnNotificationSent;
+
 
         public Notification(string sender, string recipient, string content)
         {
@@ -57,7 +60,26 @@ namespace Name.Models
             Content = content;
             Date = DateTime.Now;
         }
+        public void SendNotification()
+        {
+            OnNotificationSent?.Invoke(this);
+        }
     }
+    public class NotificationManager
+    {
+        public void RegisterNotification(Notification notification)
+        {
+
+            notification.OnNotificationSent += HandleNotification;
+        }
+
+
+        private void HandleNotification(Notification notification)
+        {
+            Console.WriteLine($"Notification from {notification.Sender} to {notification.Recipient}: {notification.Content} at {notification.Date}");
+        }
+    }
+
 
     [Serializable]
     public class Teacher : Person
@@ -158,6 +180,8 @@ namespace Name.Models
         public string Content { get; set; }
         public DateTime Date { get; set; }
         public string Subject { get; set; }
+        public delegate void ReportCreatedHandler(Report report);
+        public event ReportCreatedHandler ReportCreated;
 
         public Report(string studentId, string teacherName, string content, string subject)
         {
@@ -166,6 +190,16 @@ namespace Name.Models
             Content = content;
             Date = DateTime.Now;
             Subject = subject;
+            OnReportCreated();
+        }
+        protected virtual void OnReportCreated()
+        {
+            ReportCreated?.Invoke(this);
+        }
+        public void AssignReport()
+        {
+
+            OnReportCreated();
         }
     }
 
@@ -388,6 +422,12 @@ namespace Name.Models
             LoginInfo loginInfo = Login(loginInfos);
             students = FileHandler.LoadDataFromFile(studentFilePath);
             Summary.SetStudents(students);
+            Notification notification = new Notification("Teacher", "Student", "Your report is ready.");
+            NotificationManager notificationManager = new NotificationManager();
+            notificationManager.RegisterNotification(notification);
+            notification.SendNotification();
+
+
 
             if (loginInfo == null) return;
 
