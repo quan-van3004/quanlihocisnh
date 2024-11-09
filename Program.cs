@@ -422,17 +422,6 @@ namespace Name.Models
             LoginInfo loginInfo = Login(loginInfos);
             students = FileHandler.LoadDataFromFile(studentFilePath);
             Summary.SetStudents(students);
-            Notification notification = new Notification("Giáo viên A", "Học sinh B", "Thông báo về bài tập");
-            notification.OnNotificationSent += Notification_OnNotificationSent;
-            NotificationManager notificationManager = new NotificationManager();
-            notificationManager.RegisterNotification(notification);
-            notification.SendNotification();
-
-            notification.SendNotification();
-
-            // Unbinding sự kiện sau khi xử lý xong
-            notification.OnNotificationSent -= Notification_OnNotificationSent;
-
 
             if (loginInfo == null) return;
 
@@ -590,35 +579,38 @@ namespace Name.Models
         public class NotificationHandler
         {
             private const string NotificationFilePath = "notifications.json";
+            private List<Notification> notifications = new List<Notification>();
+            private NotificationManager notificationManager = new NotificationManager();
 
-            public static void SendNotification(string sender, string recipient, string content)
+            public void SendNotification(string sender, string recipient, string content)
             {
                 Notification notification = new Notification(sender, recipient, content);
-                List<Notification> notifications = LoadNotifications();
                 notifications.Add(notification);
-                SaveNotifications(notifications);
-                Console.WriteLine("Thông báo đã được gửi thành công.");
+                notificationManager.RegisterNotification(notification);
+                notification.OnNotificationSent += Notification_OnNotificationSent;
+                notification.SendNotification();
             }
 
-            public static List<Notification> LoadNotifications()
+            private void Notification_OnNotificationSent(Notification notification)
             {
-                if (!File.Exists(NotificationFilePath)) return new List<Notification>();
-
-                string jsonString = File.ReadAllText(NotificationFilePath);
-                return JsonSerializer.Deserialize<List<Notification>>(jsonString) ?? new List<Notification>();
+                Console.WriteLine($"Thông báo từ {notification.Sender}");
             }
 
-            public static void SaveNotifications(List<Notification> notifications)
+            public void UnbindNotification(Notification notification)
             {
-                JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
-                string jsonString = JsonSerializer.Serialize(notifications, options);
-                File.WriteAllText(NotificationFilePath, jsonString);
+                notification.OnNotificationSent -= Notification_OnNotificationSent;
             }
-
-            public static List<Notification> GetNotificationsForUser(string username)
+            public List<Notification> GetNotificationsForUser(string username)
             {
-                List<Notification> notifications = LoadNotifications();
                 return notifications.Where(n => n.Recipient.Equals(username, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            public void DisplayNotifications(List<Notification> notifications)
+            {
+                foreach (var notification in notifications)
+                {
+                    Console.WriteLine($"Từ: {notification.Sender}, Ngày: {notification.Date}, Nội dung: {notification.Content}");
+                }
             }
         }
 
@@ -629,25 +621,23 @@ namespace Name.Models
             Console.WriteLine("Nhập nội dung thông báo:");
             string content = Console.ReadLine();
             string sender = "Admin"; // Hoặc lấy từ thông tin đăng nhập nếu cần
-
-            NotificationHandler.SendNotification(sender, recipient, content);
+            NotificationHandler notificationHandler = new NotificationHandler();
+            notificationHandler.SendNotification(sender, recipient, content);
         }
+
         public static void ViewNotifications(string username)
         {
-            List<Notification> notifications = NotificationHandler.GetNotificationsForUser(username);
+            NotificationHandler notificationHandler = new NotificationHandler();
+            List<Notification> notifications = notificationHandler.GetNotificationsForUser(username);
             if (notifications.Count == 0)
             {
                 Console.WriteLine("Không có thông báo nào.");
             }
             else
             {
-                foreach (var notification in notifications)
-                {
-                    Console.WriteLine($"Từ: {notification.Sender}, Ngày: {notification.Date}, Nội dung: {notification.Content}");
-                }
+                notificationHandler.DisplayNotifications(notifications);
             }
         }
-
 
         public static void SaveReport(Report report)
         {
