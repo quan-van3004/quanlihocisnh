@@ -422,11 +422,16 @@ namespace Name.Models
             LoginInfo loginInfo = Login(loginInfos);
             students = FileHandler.LoadDataFromFile(studentFilePath);
             Summary.SetStudents(students);
-            Notification notification = new Notification("Teacher", "Student", "Your report is ready.");
+            Notification notification = new Notification("Giáo viên A", "Học sinh B", "Thông báo về bài tập");
+            notification.OnNotificationSent += Notification_OnNotificationSent;
             NotificationManager notificationManager = new NotificationManager();
             notificationManager.RegisterNotification(notification);
             notification.SendNotification();
 
+            notification.SendNotification();
+
+            // Unbinding sự kiện sau khi xử lý xong
+            notification.OnNotificationSent -= Notification_OnNotificationSent;
 
 
             if (loginInfo == null) return;
@@ -738,7 +743,10 @@ namespace Name.Models
                 Console.WriteLine("Không tìm thấy học sinh.");
             }
         }
-
+        private static void Notification_OnNotificationSent(Notification notification)
+        {
+            Console.WriteLine($"Thông báo từ {notification.Sender} tới {notification.Recipient}: {notification.Content} vào lúc {notification.Date}");
+        }
 
         public static void SearchStudentAndDisplayScores()
         {
