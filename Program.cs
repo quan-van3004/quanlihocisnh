@@ -7,6 +7,15 @@ using System.Text.Json;
 
 namespace Name.Models
 {
+    public interface IPerson
+    {
+        string Name { get; set; }
+        int Age { get; set; }
+        string Address { get; set; }
+
+        void DisplayInfo();
+    }
+
     [Serializable]
     public abstract class Person : ISerializable
     {
@@ -22,7 +31,6 @@ namespace Name.Models
             Age = age;
             Address = address;
         }
-
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             try
