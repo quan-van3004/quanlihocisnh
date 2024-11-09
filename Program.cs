@@ -25,9 +25,16 @@ namespace Name.Models
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Name", Name);
-            info.AddValue("Age", Age);
-            info.AddValue("Address", Address);
+            try
+            {
+                info.AddValue("Name", Name);
+                info.AddValue("Age", Age);
+                info.AddValue("Address", Address);
+            }
+            catch (SerializationException ex)
+            {
+                Console.WriteLine("Lỗi trong quá trình tuần tự hóa: " + ex.Message);
+            }
         }
 
         protected Person(SerializationInfo info, StreamingContext context)
@@ -658,22 +665,30 @@ namespace Name.Models
 
         public static LoginInfo Login(List<LoginInfo> loginInfos)
         {
-            Console.WriteLine("Vui lòng đăng nhập:");
-            Console.Write("Tên đăng nhập: ");
-            string username = Console.ReadLine();
-            Console.Write("Mật khẩu: ");
-            string password = Console.ReadLine();
-
-            foreach (var info in loginInfos)
+            try
             {
-                if (info.Username == username && info.Password == password)
+                Console.WriteLine("Vui lòng đăng nhập:");
+                Console.Write("Tên đăng nhập: ");
+                string username = Console.ReadLine();
+                Console.Write("Mật khẩu: ");
+                string password = Console.ReadLine();
+
+                foreach (var info in loginInfos)
                 {
-                    Console.WriteLine("Đăng nhập thành công!");
-                    return info;
+                    if (info.Username == username && info.Password == password)
+                    {
+                        Console.WriteLine("Đăng nhập thành công!");
+                        return info;
+                    }
                 }
+                Console.WriteLine("Sai tên đăng nhập hoặc mật khẩu.");
+                return null;
             }
-            Console.WriteLine("Sai tên đăng nhập hoặc mật khẩu.");
-            return null;
+            catch (NullReferenceException ex)
+            {
+                Console.WriteLine("Lỗi NullReferenceException: " + ex.Message);
+                return null;
+            }
         }
 
         public static void AddStudent()
